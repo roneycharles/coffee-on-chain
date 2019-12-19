@@ -1,0 +1,39 @@
+{
+  "name": "coffee_chain",
+  "version": "0.0.1",
+  "description": "CoffeeChain",
+  "directories": {
+    "test": "test"
+  },
+  "dependencies": {
+    "tronweb": "^2.8.1"
+  },
+  "scripts": {
+    "dev": "lite-server",
+    "compile": "tronbox compile -all",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "migrate": "tronbox migrate --network shasta --reset",
+    "start": "react-scripts start",
+    "build": "react-scripts build && rimraf docs && mv build/ docs"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ],
+  "devDependencies": {
+    "dotenv": "^8.2.0",
+    "solc": "^0.4.25"
+  },
+  "authors": [
+    {
+      "name": "fbsobreira",
+      "email": "fbsobreira@cryptochain.network"
+    }
+  ],
+  "license": "NONE"
+}
