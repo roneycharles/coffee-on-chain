@@ -1,0 +1,7 @@
+.buttonStyle {
+    position: absolute;
+    color: aqua;
+    border: 1px;
+    border-color: aqua;
+    border-style: solid;
+}
