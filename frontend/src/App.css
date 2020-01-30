@@ -13,6 +13,18 @@
   border: 0;
 }
 
+.app-confirmation {
+  font-weight: 800;
+  font-size: 20px;
+  display: table;
+  height: 100%;
+  width: 100%;
+  text-align: center;
+}
+.app-confirmation p {
+  display: table-cell;
+  vertical-align: middle;
+}
 
 .app-background {
   /* The image used */
