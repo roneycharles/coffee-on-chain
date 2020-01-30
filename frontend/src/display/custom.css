@@ -1,8 +1,7 @@
-.buttonStyle {
+.displayStyle {
     position: absolute;
     color: black;
     /* border: 1px;
     border-color: aqua;
-    border-style: solid; */
-    cursor: pointer;
+    border-style: solid */
 }
