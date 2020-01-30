@@ -16,6 +16,8 @@ contract CoffeeOnChain is Ownable, ManageableContract {
     * TODO:
     * - Add referals
     * - Add fees
+    * - Add get produts by machine ID
+    * - Return product price in REAL/TRX
     */
 
   struct Porduct {
@@ -106,7 +108,7 @@ contract CoffeeOnChain is Ownable, ManageableContract {
     return true;
   }
 
-  function deleteProduc(bytes32 id, uint256 index) external returns(bool success) {
+  function deleteProduct(bytes32 id, uint256 index) external returns(bool success) {
     require(_machines[id].id == id, "Machine not found");
     require(_machinesProducts[id].length > index, "Machine product not found");
     require(_machines[id].manager == msg.sender, "Not machine owner");
