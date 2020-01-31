@@ -24,7 +24,6 @@ contract CoffeeOnChain is Ownable, ManageableContract {
     * TODO:
     * - Add referals
     * - Add fees
-    * - Get product for maintenance
     */
 
   struct Porduct {
@@ -170,6 +169,26 @@ contract CoffeeOnChain is Ownable, ManageableContract {
     emit ResetCounter(id, index, _machinesProducts[id][index].counter);
     _machinesProducts[id][index].counter = 0;    
     return true;
+  }
+
+  // Get product info at machine ID/index
+  function getProduct(bytes32 id, uint256 index) external view returns(
+    string memory name,
+    uint256 price,
+    bool useRealRatio,
+    bool enable,
+    uint256 counter
+  ) {
+    require(_machines[id].id == id, "Machine not found");
+    require(_machinesProducts[id].length > index, "Machine product not found");
+    require(_machines[id].manager == msg.sender, "Not machine owner");
+    return (
+      _machinesProducts[id][index].name,
+      _machinesProducts[id][index].price,
+      _machinesProducts[id][index].useRealRatio,
+      _machinesProducts[id][index].enable,
+      _machinesProducts[id][index].counter
+    );
   }
 
   // Withdraw available funds
