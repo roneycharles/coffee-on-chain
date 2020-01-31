@@ -78,7 +78,7 @@ contract CoffeeOnChain is Ownable, ManageableContract {
   }
 
   // Get Total Products/Name by machine ID
-  function machineAt(bytes32 id) external view returns(uint256 productCounts, string memory name) {
+  function machineById(bytes32 id) external view returns(uint256 productCounts, string memory name) {
     require(_machines[id].id == id, "Machine not found");
     return (_machinesProducts[id].length, _machines[id].name);
   }
@@ -163,7 +163,7 @@ contract CoffeeOnChain is Ownable, ManageableContract {
   }
 
   // Reset product counter at machine ID/index
-  function resetProductCounter(bytes32 id, uint256 index, string calldata name) external returns(bool success) {
+  function resetProductCounter(bytes32 id, uint256 index) external returns(bool success) {
     require(_machines[id].id == id, "Machine not found");
     require(_machinesProducts[id].length > index, "Machine product not found");
     require(_machines[id].manager == msg.sender, "Not machine owner");
