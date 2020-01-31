@@ -7,7 +7,14 @@ import "../roles/Manageable.sol";
 contract CoffeeOnChain is Ownable, ManageableContract {
   using SafeMath for uint256;
 
-  event PaymentReceived(address indexed from, bytes32 machineId, uint256 productIndex, uint256 amount);
+  event PaymentReceived(
+    address indexed from,
+    bytes32 indexed machineId,
+    uint256 productIndex,
+    uint256 amountTRX,
+    uint256 realRatio,
+    uint256 amountReal
+  );
   event Withdraw(address indexed owner, uint256 amount);
 
   uint256 realRatio;
@@ -16,8 +23,8 @@ contract CoffeeOnChain is Ownable, ManageableContract {
     * TODO:
     * - Add referals
     * - Add fees
-    * - Return product price in REAL/TRX
     * - Add reset product counter
+    * - Get product for maintenance
     */
 
   struct Porduct {
@@ -45,7 +52,7 @@ contract CoffeeOnChain is Ownable, ManageableContract {
     realRatio = value;
     return true;
   }
-  
+
   // Return Real/TRX ratio
   function getRealRatio() external view returns(uint256 value) {
     return realRatio;
@@ -78,18 +85,26 @@ contract CoffeeOnChain is Ownable, ManageableContract {
   }
 
   // Get Product Price and Name by Machine ID and position index
-  function getProductPriceAndName(bytes32 id, uint256 index) external view returns(string memory name, uint256 price) {
-    price = getPrice(id, index);
-    return (_machinesProducts[id][index].name, price);
+  function getProductPriceAndName(bytes32 id, uint256 index) external view returns(
+    string memory name,
+    uint256 priceInTRX,
+    uint256 priceInReal
+  ) {
+    (priceInTRX, priceInReal) = getPrice(id, index);
+    return (_machinesProducts[id][index].name, priceInTRX, priceInReal);
   }
 
   // Get product price by Machine ID and position index
-  function getPrice(bytes32 id, uint256 index) internal view returns(uint256 price) {
+  function getPrice(bytes32 id, uint256 index) internal view returns(uint256 priceInTRX, uint256 priceInReal) {
     require(_machines[id].id == id, "Machine not found");
     require(_machinesProducts[id].length > index, "Machine product not found");
-    price = _machinesProducts[id][index].price;
+    uint256 price = _machinesProducts[id][index].price;
     if (_machinesProducts[id][index].useRealRatio) {
-      price = price.mul(realRatio);
+      priceInReal = price;
+      priceInTRX = price.mul(realRatio);
+    }else{
+      priceInTRX = price;
+      priceInReal = price.div(realRatio);
     }
   }
 
@@ -162,11 +177,11 @@ contract CoffeeOnChain is Ownable, ManageableContract {
 
   // Pay a machine to buy the product at index
   function pay(bytes32 id, uint256 index) external payable returns(bool success) {
-    uint256 price = getPrice(id, index);
-    require(msg.value == price, "Price does not match");
+    (uint256 priceInTRX, uint256 priceInReal) = getPrice(id, index);
+    require(msg.value == priceInTRX, "Price does not match");
     _machinesProducts[id][index].counter.add(1);
-    _balances[_machines[id].manager].add(price);
-    emit PaymentReceived(msg.sender, id, index, price);
+    _balances[_machines[id].manager].add(priceInTRX);
+    emit PaymentReceived(msg.sender, id, index, priceInTRX, realRatio, priceInReal);
     return true;
   }
 
