@@ -16,7 +16,6 @@ contract CoffeeOnChain is Ownable, ManageableContract {
     * TODO:
     * - Add referals
     * - Add fees
-    * - Add get produts by machine ID
     * - Return product price in REAL/TRX
     */
 
@@ -39,16 +38,19 @@ contract CoffeeOnChain is Ownable, ManageableContract {
   mapping(address => uint256) private _balances;
   bytes32[] private machinesList;
 
+  // Set Real/TRX ratio
   function setRealRatio(uint256 value) external onlyManagerContract returns(bool success) {
     require(value > 0, "Value cannot be zero");
     realRatio = value;
     return true;
   }
-
+  
+  // Return Real/TRX ratio
   function getRealRatio() external view returns(uint256 value) {
     return realRatio;
   }
 
+  // Register new machine with name
   function registerMachine(string memory name) public returns(bytes32 id) {
     id = calcRegistrationId(msg.sender, name);
     require(_machines[id].id != id, "Already register");
@@ -57,25 +59,30 @@ contract CoffeeOnChain is Ownable, ManageableContract {
     return id;
   }
 
+  // Get count of machines in list
   function machineCounter() public view returns(uint256 counter) {
     return machinesList.length;
   }
 
+  // Get machine ID/Total Products/Name by index
   function machineAt(uint256 index) external view returns(bytes32 id, uint256 productCounts, string memory name) {
     require(machineCounter() > index, "Index not found");
-    return (machinesList[index], _machinesProducts[machinesList[index]].length, machinesList[index].name);
+    return (machinesList[index], _machinesProducts[machinesList[index]].length, _machines[machinesList[index]].name);
   }
 
-  function getProductPriceAndName(bytes32 id, uint256 index) external view returns(string memory name, uint256 price) {
+  // Get Total Products/Name by machine ID
+  function machineAt(bytes32 id) external view returns(uint256 productCounts, string memory name) {
     require(_machines[id].id == id, "Machine not found");
-    require(_machinesProducts[id].length > index, "Machine product not found");
-    price = _machinesProducts[id][index].price;
-    if (_machinesProducts[id][index].useRealRatio) {
-      price = price.div(realRatio);
-    }
+    return (_machinesProducts[id].length, _machines[id].name);
+  }
+
+  // Get Product Price and Name by Machine ID and position index
+  function getProductPriceAndName(bytes32 id, uint256 index) external view returns(string memory name, uint256 price) {
+    price = getPrice(id, index);
     return (_machinesProducts[id][index].name, price);
   }
 
+  // Get product price by Machine ID and position index
   function getPrice(bytes32 id, uint256 index) public view returns(uint256 price) {
     require(_machines[id].id == id, "Machine not found");
     require(_machinesProducts[id].length > index, "Machine product not found");
@@ -85,6 +92,7 @@ contract CoffeeOnChain is Ownable, ManageableContract {
     }
   }
 
+  // Set product price
   function adjustPrice(bytes32 id, uint256 index, uint256 newPrice, bool useRealRatio) external returns(bool success) {
     require(_machines[id].id == id, "Machine not found");
     require(_machinesProducts[id].length > index, "Machine product not found");
@@ -94,6 +102,7 @@ contract CoffeeOnChain is Ownable, ManageableContract {
     return true;
   }
 
+  // Add new product to machine
   function addProduct(bytes32 id, string calldata name, uint256 price, bool useRealRatio) external returns(bool success) {
     require(_machines[id].id == id, "Machine not found");
     require(_machines[id].manager == msg.sender, "Not machine owner");
@@ -108,6 +117,7 @@ contract CoffeeOnChain is Ownable, ManageableContract {
     return true;
   }
 
+  // Delete machine product
   function deleteProduct(bytes32 id, uint256 index) external returns(bool success) {
     require(_machines[id].id == id, "Machine not found");
     require(_machinesProducts[id].length > index, "Machine product not found");
@@ -118,6 +128,7 @@ contract CoffeeOnChain is Ownable, ManageableContract {
     return true;
   }
 
+  // Change product status
   function changeProductStatus(bytes32 id, uint256 index, bool enable) external returns(bool success) {
     require(_machines[id].id == id, "Machine not found");
     require(_machinesProducts[id].length > index, "Machine product not found");
@@ -126,6 +137,7 @@ contract CoffeeOnChain is Ownable, ManageableContract {
     return true;
   }
 
+  // Change product name
   function changeProductName(bytes32 id, uint256 index, string calldata name) external returns(bool success) {
     require(_machines[id].id == id, "Machine not found");
     require(_machinesProducts[id].length > index, "Machine product not found");
@@ -134,6 +146,7 @@ contract CoffeeOnChain is Ownable, ManageableContract {
     return true;
   }
 
+  // Withdraw available funds
   function withdraw() external returns(bool success, uint256 amount) {
     amount = _balances[msg.sender];
     if (amount > 0) {
@@ -146,6 +159,7 @@ contract CoffeeOnChain is Ownable, ManageableContract {
     }
   }
 
+  // Pay a machine to buy the product at index
   function pay(bytes32 id, uint256 index) external payable returns(bool success) {
     uint256 price = getPrice(id, index);
     require(msg.value == price, "Price does not match");
