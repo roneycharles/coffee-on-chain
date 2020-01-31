@@ -6,7 +6,7 @@ import Loader from '../loader';
 import './styles.css';
 
 
-const contractAddress = "TCDxRZh6JH4wYQUxQqPNEVvpzwgTBXkJTy"
+const contractAddress = "TUXoGr8fosA5sdDAWBqt6KTmzUThjpGaYf"
 
 class Admin extends React.Component {
   constructor(props) {
@@ -23,7 +23,8 @@ class Admin extends React.Component {
         productName: "",
         productPrice: "",
         productUseReal: "",
-        realRatio: 0,
+        realRatioNum: 126,
+        realRatioDen: 1000,
       },
       machine: {},
       selectedProductId: -1,
@@ -157,6 +158,24 @@ class Admin extends React.Component {
     }
   }
 
+  updateRealRatio = async () => {
+    const { tronWeb, contract, form } = this.state;
+    if (!tronWeb.loggedIn || contract == null) {
+      alert("TronWeb/Contract not loaded!")
+      return
+    };
+    try {
+      const resp = await contract.setRealRatio(form.realRatioNum, form.realRatioDen).send({
+        shouldPollResponse: true
+      })
+      console.log(resp)  
+      alert("Real ratio updated!")
+    } catch (error) {
+      alert("Error")
+      console.log(error)
+    }
+  }
+  
   loadMachineInfo = async () => {
     const { tronWeb, contract, form } = this.state;
     if (!tronWeb.loggedIn || contract == null) {
@@ -396,6 +415,37 @@ class Admin extends React.Component {
                 onClick={this.loadMachineInfo}
                 >
                 Load Machine Info
+              </Button>
+            </Col>
+
+
+            <Col className="Box">
+              <InputGroup>
+                <InputGroup.Prepend>
+                  <InputGroup.Text>Real Ratio:</InputGroup.Text>
+                </InputGroup.Prepend>
+                <input type="text"
+                  name="realRatioNum"
+                  className="form-control"
+                  placeholder="Numerator"
+                  value={form.realRatioNum}
+                  onChange={this.handleUpdate}
+                />
+                <input type="text"
+                  name="realRatioDen"
+                  className="form-control"
+                  placeholder="Denominator"
+                  value={form.realRatioDen}
+                  onChange={this.handleUpdate}
+                />
+              </InputGroup>
+
+              <Button 
+                className="actionButton"
+                variant="outline-primary"
+                onClick={this.updateRealRatio}
+                >
+                Update
               </Button>
             </Col>
           </Row>
