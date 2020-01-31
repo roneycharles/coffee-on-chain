@@ -61,9 +61,9 @@ contract CoffeeOnChain is Ownable, ManageableContract {
     return machinesList.length;
   }
 
-  function machineAt(uint256 index) external view returns(bytes32 id, uint256 productCounts) {
+  function machineAt(uint256 index) external view returns(bytes32 id, uint256 productCounts, string memory name) {
     require(machineCounter() > index, "Index not found");
-    return (machinesList[index], _machinesProducts[machinesList[index]].length);
+    return (machinesList[index], _machinesProducts[machinesList[index]].length, machinesList[index].name);
   }
 
   function getProductPriceAndName(bytes32 id, uint256 index) external view returns(string memory name, uint256 price) {
