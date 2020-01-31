@@ -12,13 +12,15 @@ contract CoffeeOnChain is Ownable, ManageableContract {
     bytes32 indexed machineId,
     uint256 productIndex,
     uint256 amountTRX,
-    uint256 realRatio,
+    uint256 realRatioNum,
+    uint256 realRatioDen,
     uint256 amountReal
   );
   event Withdraw(address indexed owner, uint256 amount);
   event ResetCounter(bytes32 indexed machineId, uint256 index, uint256 counter);
 
-  uint256 realRatio;
+  uint256 realRatioNum;
+  uint256 realRatioDen;
 
   /**
     * TODO:
@@ -46,15 +48,16 @@ contract CoffeeOnChain is Ownable, ManageableContract {
   bytes32[] private machinesList;
 
   // Set Real/TRX ratio
-  function setRealRatio(uint256 value) external onlyManagerContract returns(bool success) {
-    require(value > 0, "Value cannot be zero");
-    realRatio = value;
+  function setRealRatio(uint256 num, uint256 den) external onlyManagerContract returns(bool success) {
+    require(num > 0 && den > 0, "Value cannot be zero");
+    realRatioNum = num;
+    realRatioDen = den;
     return true;
   }
 
   // Return Real/TRX ratio
-  function getRealRatio() external view returns(uint256 value) {
-    return realRatio;
+  function getRealRatio() external view returns(uint256 num, uint256 den) {
+    return (realRatioNum, realRatioDen);
   }
 
   // Register new machine with name
@@ -101,10 +104,10 @@ contract CoffeeOnChain is Ownable, ManageableContract {
     uint256 price = _machinesProducts[id][index].price;
     if (_machinesProducts[id][index].useRealRatio) {
       priceInReal = price;
-      priceInTRX = price.mul(realRatio);
+      priceInTRX = price.mul(realRatioNum).div(realRatioDen);
     }else{
       priceInTRX = price;
-      priceInReal = price.div(realRatio);
+      priceInReal = price.mul(realRatioDen).div(realRatioNum);
     }
   }
 
@@ -213,7 +216,7 @@ contract CoffeeOnChain is Ownable, ManageableContract {
     require(msg.value == priceInTRX, "Price does not match");
     _machinesProducts[id][index].counter.add(1);
     _balances[_machines[id].manager].add(priceInTRX);
-    emit PaymentReceived(msg.sender, id, index, priceInTRX, realRatio, priceInReal);
+    emit PaymentReceived(msg.sender, id, index, priceInTRX, realRatioNum, realRatioDen, priceInReal);
     return true;
   }
 

@@ -6,8 +6,7 @@ import { buttons } from './constants'
 
 //const TronWeb = require('tronweb')
 
-const contractAddress = "TAizHsUbdDK7XL2QUqdjLxNkvgxNZB5Qbs"
-const machineID = "0x0b30a05d1748322d148bc8000bdf22c077759ad42ad3766b27a99830a200f97d"
+const contractAddress = "TUXoGr8fosA5sdDAWBqt6KTmzUThjpGaYf"
 
 class App extends React.Component {
 
@@ -23,7 +22,8 @@ class App extends React.Component {
       tronWeb: {},
       myAddress: "",
       contract: null,
-      products: []
+      products: [],
+      machineID: ""
     }
     
     window.addEventListener("resize", this.updateWidthAndHeight);
@@ -31,6 +31,13 @@ class App extends React.Component {
 
 
   componentDidMount() {
+    const query = new URLSearchParams(this.props.location.search);
+    const machineId = query.get('id')
+    this.setState({
+      loading: true,
+      machineId
+    })
+
     this.updateWidthAndHeight()
     
     this.setState({
@@ -38,18 +45,24 @@ class App extends React.Component {
     })
 
     this.loadPrices = setInterval( async () => {
-      const { tronWeb, contract } = this.state;
+      const { tronWeb, contract, machineId } = this.state;
       if (!tronWeb.loggedIn || contract == null) return;
 
+      // get machine by id
+      const machine = await contract.machineById(machineId).call();
+
+      console.log("MACHINE", machine, machine.productCounts.toNumber());
       const products = [];
-      for (let i=0; i< 8; i++){
-        const ret = await contract.getProductPriceAndName(machineID, i).call();
+      for (let i=0; i< machine.productCounts.toNumber(); i++){
+        const ret = await contract.getProductPriceAndName(machineId, i).call();
         products.push({
           index: i,
           name: ret.name,
-          price: ret.price.toString()
+          priceInTRX: ret.priceInTRX.toString(),
+          priceInReal: ret.priceInReal.toString()
         })
       }
+      console.log(products)
       this.setState({
         products
       });
@@ -97,8 +110,8 @@ class App extends React.Component {
   
   handleClickButton = async ({ id }) => {
 
-    const { btnClick, contract } = this.state;
-    if (id===9) {
+    const { btnClick, contract, machineId } = this.state;
+    if (id===100) {
       const { products } = this.state;
       if (btnClick<0) {
         alert("Select first")
@@ -108,8 +121,8 @@ class App extends React.Component {
         alert("Invalid selection")
         return
       }
-      const ret = await contract.pay(machineID, btnClick).send({
-        callValue: products[btnClick].price,
+      const ret = await contract.pay(machineId, btnClick).send({
+        callValue: parseInt(products[btnClick].priceInTRX),
         shouldPollResponse: true
       })
       console.log("Paid", ret)
@@ -142,8 +155,8 @@ class App extends React.Component {
 
   render() {
     const { width, height, btnClick, myAddress, products } = this.state;
-    
-    const selectedPrice = (btnClick>0 && btnClick<products.length)?products[btnClick].price:-1
+
+    const selectedPrice = (btnClick>=0 && btnClick<products.length)?products[btnClick].priceInReal:-1
 
     return (
       <div className="App">
@@ -163,7 +176,7 @@ class App extends React.Component {
                 {
                   (selectedPrice>=0) &&
                   <div>
-                    Valor: R${selectedPrice}
+                    Valor: R${parseFloat(selectedPrice)/100}
                   </div>
                 }
               </div>
