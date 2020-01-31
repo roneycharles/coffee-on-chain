@@ -84,7 +84,7 @@ contract CoffeeOnChain is Ownable, ManageableContract {
   }
 
   // Get product price by Machine ID and position index
-  function getPrice(bytes32 id, uint256 index) public view returns(uint256 price) {
+  function getPrice(bytes32 id, uint256 index) internal view returns(uint256 price) {
     require(_machines[id].id == id, "Machine not found");
     require(_machinesProducts[id].length > index, "Machine product not found");
     price = _machinesProducts[id][index].price;
