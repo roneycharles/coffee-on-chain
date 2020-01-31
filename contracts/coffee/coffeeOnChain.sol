@@ -16,6 +16,7 @@ contract CoffeeOnChain is Ownable, ManageableContract {
     uint256 amountReal
   );
   event Withdraw(address indexed owner, uint256 amount);
+  event ResetCounter(bytes32 indexed machineId, uint256 index, uint256 counter);
 
   uint256 realRatio;
 
@@ -23,7 +24,6 @@ contract CoffeeOnChain is Ownable, ManageableContract {
     * TODO:
     * - Add referals
     * - Add fees
-    * - Add reset product counter
     * - Get product for maintenance
     */
 
@@ -159,6 +159,16 @@ contract CoffeeOnChain is Ownable, ManageableContract {
     require(_machinesProducts[id].length > index, "Machine product not found");
     require(_machines[id].manager == msg.sender, "Not machine owner");
     _machinesProducts[id][index].name = name;
+    return true;
+  }
+
+  // Reset product counter at machine ID/index
+  function resetProductCounter(bytes32 id, uint256 index, string calldata name) external returns(bool success) {
+    require(_machines[id].id == id, "Machine not found");
+    require(_machinesProducts[id].length > index, "Machine product not found");
+    require(_machines[id].manager == msg.sender, "Not machine owner");
+    emit ResetCounter(id, index, _machinesProducts[id][index].counter);
+    _machinesProducts[id][index].counter = 0;    
     return true;
   }
 
