@@ -78,7 +78,7 @@ contract CoffeeOnChain is Ownable, ManageableContract {
   }
 
   // Get Total Products/Name by machine ID
-  function machineAt(bytes32 id) external view returns(uint256 productCounts, string memory name) {
+  function machineById(bytes32 id) external view returns(uint256 productCounts, string memory name) {
     require(_machines[id].id == id, "Machine not found");
     return (_machinesProducts[id].length, _machines[id].name);
   }
