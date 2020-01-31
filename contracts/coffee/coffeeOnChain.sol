@@ -17,6 +17,7 @@ contract CoffeeOnChain is Ownable, ManageableContract {
     * - Add referals
     * - Add fees
     * - Return product price in REAL/TRX
+    * - Add reset product counter
     */
 
   struct Porduct {
@@ -88,7 +89,7 @@ contract CoffeeOnChain is Ownable, ManageableContract {
     require(_machinesProducts[id].length > index, "Machine product not found");
     price = _machinesProducts[id][index].price;
     if (_machinesProducts[id][index].useRealRatio) {
-      price = price.div(realRatio);
+      price = price.mul(realRatio);
     }
   }
 
