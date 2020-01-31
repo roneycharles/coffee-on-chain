@@ -87,10 +87,11 @@ contract CoffeeOnChain is Ownable, ManageableContract {
   function getProductPriceAndName(bytes32 id, uint256 index) external view returns(
     string memory name,
     uint256 priceInTRX,
-    uint256 priceInReal
+    uint256 priceInReal,
+    bool enable
   ) {
     (priceInTRX, priceInReal) = getPrice(id, index);
-    return (_machinesProducts[id][index].name, priceInTRX, priceInReal);
+    return (_machinesProducts[id][index].name, priceInTRX, priceInReal, _machinesProducts[id][index].enable);
   }
 
   // Get product price by Machine ID and position index
@@ -167,7 +168,7 @@ contract CoffeeOnChain is Ownable, ManageableContract {
     require(_machinesProducts[id].length > index, "Machine product not found");
     require(_machines[id].manager == msg.sender, "Not machine owner");
     emit ResetCounter(id, index, _machinesProducts[id][index].counter);
-    _machinesProducts[id][index].counter = 0;    
+    _machinesProducts[id][index].counter = 0;
     return true;
   }
 
@@ -207,6 +208,8 @@ contract CoffeeOnChain is Ownable, ManageableContract {
   // Pay a machine to buy the product at index
   function pay(bytes32 id, uint256 index) external payable returns(bool success) {
     (uint256 priceInTRX, uint256 priceInReal) = getPrice(id, index);
+    // check if product is enable
+    require(_machinesProducts[id][index].enable == true, "Product not enable");
     require(msg.value == priceInTRX, "Price does not match");
     _machinesProducts[id][index].counter.add(1);
     _balances[_machines[id].manager].add(priceInTRX);
