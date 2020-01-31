@@ -19,7 +19,7 @@ class App extends React.Component {
       ratio: (1316 / 1200),
       btnClick: -1,
       textLed: '',
-      loading: false,
+      loading: true,
       tronWeb: {},
       myAddress: "",
       contract: null,
