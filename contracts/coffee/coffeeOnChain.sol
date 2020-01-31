@@ -163,7 +163,7 @@ contract CoffeeOnChain is Ownable, ManageableContract {
   }
 
   // Reset product counter at machine ID/index
-  function resetProductCounter(bytes32 id, uint256 index, string calldata name) external returns(bool success) {
+  function resetProductCounter(bytes32 id, uint256 index) external returns(bool success) {
     require(_machines[id].id == id, "Machine not found");
     require(_machinesProducts[id].length > index, "Machine product not found");
     require(_machines[id].manager == msg.sender, "Not machine owner");
