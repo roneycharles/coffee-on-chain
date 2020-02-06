@@ -3,6 +3,7 @@ import './App.css';
 import Button from './button';
 import Display from './display';
 import { buttons } from './constants'
+import Led from './leds'
 
 //const TronWeb = require('tronweb')
 
@@ -164,11 +165,12 @@ class App extends React.Component {
           {buttons.map(button => (
             <Button key={button.id} onClick={() => this.handleClickButton(button)} top={button.top} left={button.left} width={button.width} height={button.height} active={btnClick === button.id ? true : false} component={button.component} />
           ))}
+            <Led key={1} top={18} left={49} width={2.1} height={70} />
           <div className="app-display">
             <Display top={3.5} left={41.2} width={17.8} height={8.9} active={true} component={
               <div>
-                <div>
-                CoffeeOnChain
+                <div className="app-display-title" >
+                  Coffee on Chain
                 </div>
                 <div>
                 {myAddress}
